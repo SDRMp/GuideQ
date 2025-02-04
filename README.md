@@ -36,6 +36,11 @@ The project includes:
 - Scores answer confidence and **compares different question strategies (baseline vs. LLM-generated questions).**
 - Outputs **final evaluation CSVs**.
 
+### **5. `multi_turn.py` (Multi-Turn Question Generation)**
+- Implements **multi-turn questioning** using a **guided questioning strategy**.
+- Generates a series of **contextual questions and answers** over multiple turns, refining the guiding words and context.
+- Dynamically updates **partial information** and **keywords** for improved **classification accuracy**.
+
 ---
 
 ## **Datasets**
@@ -82,7 +87,13 @@ Extracts **important textual patterns** that influence classification.
 python answers_qapipeline.py
 ```
 Runs the **QA pipeline**, storing **answers and confidence scores**.
+ 
 
+### **6. Multiturn Interaction**
+```bash
+python multiturn_interaction.py
+```
+Effective in **multiturn interactions**, allowing for more **dynamic and refined information retrieval**.
 ---
 
 ## **Research Contributions**
@@ -102,6 +113,7 @@ Runs the **QA pipeline**, storing **answers and confidence scores**.
 
 - **Potential for Real-World Applications**: Shows promise for real-world applications in information retrieval and classification tasks, particularly in scenarios involving partial or incomplete information.
 
+- **Multiturn Interaction Capability**: Effective in multiturn interactions, allowing for more dynamic and refined information retrieval.
 
 For more details, refer to our **research paper**.
 
