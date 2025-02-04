@@ -9,6 +9,7 @@ The project includes:
 - **N-gram Analysis** for extracting significant textual patterns.
 - **Question Generation** based on extracted features.
 - **Automated Answering Pipeline** using DeBERTa-v3-SQuAD2.
+- **Multiturn Interaction Capability**: Facilitates multiturn interactions, enabling dynamic and refined information retrieval.
  
 
 ---
