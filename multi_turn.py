@@ -147,31 +147,7 @@ def get_answer(question, context, qa_pipeline):
     return qa_pipeline(question=question, context=context)
 
 
-# Function for occlusion
-def occlusion(text, label, ngram_length, tokenizer, model):
-    """
-    Perform occlusion on the text and return n-gram importances based on the specified n-gram length.
-    """
-    inputs = tokenizer(text, return_tensors='pt').to(device)
-    original_logits = model(**inputs).logits
-    original_probs = F.softmax(original_logits, dim=-1)
-    original_prediction = original_probs[0][label].item()
-    
-    ngram_importances = defaultdict(float)
-    words = text.split()
-    ngrams_list = list(ngrams(words, ngram_length))
-    
-    for ngram in ngrams_list:
-        occluded_text = " ".join([word if word not in ngram else "[OCCLUDED]" for word in words])
-        occluded_inputs = tokenizer(occluded_text, return_tensors='pt').to(device)
-        occluded_logits = model(**occluded_inputs).logits
-        occluded_probs = F.softmax(occluded_logits, dim=-1)
-        occluded_prediction = occluded_probs[0][label].item()
-        
-        ngram_importances[" ".join(ngram)] = original_prediction - occluded_prediction
-        
-    return ngram_importances
-
+ 
 
 def aggregate_and_filter_positive_attributions(ngram_attributions, threshold=0):
     """
@@ -274,6 +250,7 @@ print(df.head())
 def process_row(row, turns=3):
     """
     Processes a single row through three turns of guided questioning.
+    This version removes used keywords directly after each question generation step.
     """
     current_keywords = row['significant_words']
     initial_partial_info = row['first_half']  # Preserve initial partial information
@@ -283,25 +260,22 @@ def process_row(row, turns=3):
         # Generate Question based on partial info, categories, and refined guiding words
         question_text, generated_question = generate_question(initial_partial_info, row['top3_predicted_labels'], current_keywords)
         print(f"Turn {turn} Question: {generated_question}")
-
+        
         # Extract Answer from the model using the generated question and context
         answer_result = get_answer(generated_question, current_context, qa_pipeline)
         extracted_answer = answer_result['answer']
         confidence_score = answer_result['score']
         print(f"Turn {turn} Answer: {extracted_answer} (Score: {confidence_score})")
-
-        # Update the guiding words by performing occlusion
-        ngram_attributions = occlusion(question_text, row['label'], 2, 'cuda')
-        positive_attributions = aggregate_and_filter_positive_attributions(ngram_attributions)
-        top_ngrams = select_top_ngrams(positive_attributions, top_n=5)
         
-        # Remove used guiding words for next turn
-        current_keywords = [kw for kw in current_keywords if kw not in [ngram for ngram, _ in top_ngrams]]
+        # Remove used keywords from the current_keywords list by direct word matching
+        used_keywords = [kw for kw in current_keywords if kw in generated_question]
+        current_keywords = [kw for kw in current_keywords if kw not in used_keywords]
         
         # Combine partial info, guiding words, and extracted answer for next turn
         initial_partial_info = f"{initial_partial_info} {extracted_answer}"  # Maintain history
     
     return row
+
 
 # Apply the process_row function to each row in the DataFrame
 df = df.apply(process_row, axis=1)
