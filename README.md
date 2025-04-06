@@ -48,7 +48,7 @@ The project includes:
 The repository processes datasets from **multiple sources**, supporting:
 - **20NG (20 Newsgroups)**
 - **S2D (Sentence-to-Document)**
-- **CNews (Chinese News)**
+- **CNews (Cryptography News)**
 - **Stress-related text classification**
 - **SALAD (Scientific Article Labeling And Discovery)**
 - **DBPedia**
